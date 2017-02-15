@@ -4,7 +4,7 @@ Fundamentos de Linguagem Java
 Criar um programa em Java que permita a criação de salas de aulas e de formandos.
 
 Os formandos são caracterizados pelos seguintes atributos:
-Nome, Idade, Sexo, Documento de Identificação (ID)
+Nome, Idade, Género, Documento de Identificação (ID)
 
 As salas de aula são caracterizadas pelos seguintes atributos:
 Capacidade, Lista dos Formandos, Nº actual de formandos
