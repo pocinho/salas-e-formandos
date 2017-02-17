@@ -11,6 +11,17 @@ public class Sala {
 	private int numero;
 	private String turma;
 
+	private int encontrar(String idFormando) {
+		int resultado = -1;
+		for (int i = 0; i < inscritos; ++i) {
+			if (lista[i].getId().contentEquals(idFormando)) {
+				resultado = i;
+				break;
+			}
+		}
+		return resultado;
+	}
+
 	public int getNumero() {
 		return numero;
 	}
@@ -43,7 +54,7 @@ public class Sala {
 		return listaDeFormandos;
 	}
 
-	public void adicionaFormando(Formando formando) {
+	public void adicionarFormando(Formando formando) {
 		if (inscritos < capacidade) {
 			lista[inscritos] = formando;
 			inscritos++;
@@ -52,21 +63,26 @@ public class Sala {
 		}
 	}
 
-	public void removeFormando(String identificacao) {
-		int resultado = -1;
-		for (int i = 0; i < inscritos; ++i) {
-			if (lista[i].getId().contentEquals(identificacao)) {
-				resultado = i;
-				break;
-			}
-		}
-
-		if (resultado < 0) {
-			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + identificacao + " na sala " + numero + ".");
+	public void removerFormando(String id) {
+		int i = encontrar(id);
+		if (i < 0) {
+			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + id + " na sala " + numero + ".");
 		} else {
 			inscritos--;
-			lista[resultado] = lista[inscritos];
+			lista[i] = lista[inscritos];
 			lista[inscritos] = null;
+		}
+	}
+
+	public void alterarFormando(String idAntigo, String nome, int idade, String genero, String idNovo) {
+		int i = encontrar(idAntigo);
+		if (i < 0) {
+			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + idAntigo + " na sala " + this.getNumero() + ".");
+		} else {
+			lista[i].setNome(nome);
+			lista[i].setIdade(idade);
+			lista[i].setGenero(genero);
+			lista[i].setId(idNovo);
 		}
 	}
 

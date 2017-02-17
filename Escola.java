@@ -89,7 +89,7 @@ public class Escola {
 		} else if (s < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar a sala " + numeroDeSala + ".");
 		} else {
-			salas[s].adicionaFormando(formandos[f]);
+			salas[s].adicionarFormando(formandos[f]);
 		}
 	}
 
@@ -101,7 +101,7 @@ public class Escola {
 		} else if (s < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar a sala " + numeroDeSala + ".");
 		} else {
-			salas[s].removeFormando(id);
+			salas[s].removerFormando(id);
 		}
 	}
 
@@ -142,6 +142,16 @@ public class Escola {
 			formandos[i].setNome(nome);
 			formandos[i].setIdade(idade);
 			formandos[i].setGenero(genero);
+
+			//TODO alterar método força bruta para actualizar o formando na sala
+			//     como não temos ainda base de dados é dificil verificar consistencia
+			try {
+				for (int s = 0; s < salasUtilizadas; ++s) {
+					salas[s].alterarFormando(idAntigo, nome, idade, genero, idNovo);
+				}
+			} catch (Exception e) {
+				System.out.println("A actualizar salas.");
+			}
 		}
 	}
 
