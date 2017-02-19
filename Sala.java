@@ -56,8 +56,14 @@ public class Sala {
 
 	public void adicionarFormando(Formando formando) {
 		if (inscritos < capacidade) {
-			lista[inscritos] = formando;
-			inscritos++;
+			String id = formando.getId();
+			int f = encontrar(id);
+			if (f < 0) {
+				lista[inscritos] = formando;
+				inscritos++;
+			} else {
+				throw new IllegalArgumentException("Formando com id " + id + " já existe na sala " + numero + ".");
+			}
 		} else {
 			throw new IllegalArgumentException("Sala cheia.");
 		}

@@ -3,18 +3,22 @@
  * @since  09-02-2017
  */
 
+// Notas:
+// Todos os formandos não alocados ficam na sala 0 no Registo de formandos.
+// Por isso neste programa, não convém criar sala com numero zero!
+
 public class Escola {
 
-	private Formando[] formandos;
+	private Registo[] formandos;
 	private int formandosRegistados;
 	private Sala[] salas;
 	private int salasUtilizadas;
 	private String nome;
 
-	private int encontrar(Formando[] formandos, String id) {
+	private int encontrar(Registo[] formandos, String id) {
 		int resultado = -1;
 		for (int i = 0; i < formandosRegistados; ++i) {
-			if (formandos[i].getId().contentEquals(id)) {
+			if (formandos[i].getFormando().getId().contentEquals(id)) {
 				resultado = i;
 				break;
 			}
@@ -42,26 +46,37 @@ public class Escola {
 	}
 
 	public void adicionarSala(int numero, int capacidade, String turma) {
-		if (salasUtilizadas < salas.length) {
-			int s = encontrar(salas, numero);
-			if (s < 0) {
-				salas[salasUtilizadas] = new Sala(numero, capacidade, turma);
-				salasUtilizadas++;
-			} else {
-				throw new IllegalArgumentException("Sala " + numero + " já existe.");
-			}
+		if (numero == 0) {
+			throw new IllegalArgumentException("Não é possível criar a sala zero. Reservada para a entrada.");
 		} else {
-			throw new IllegalArgumentException("Não é possível adicionar mais salas.");
+			if (salasUtilizadas < salas.length) {
+				int s = encontrar(salas, numero);
+				if (s < 0) {
+					salas[salasUtilizadas] = new Sala(numero, capacidade, turma);
+					salasUtilizadas++;
+				} else {
+					throw new IllegalArgumentException("Sala " + numero + " já existe.");
+				}
+			} else {
+				throw new IllegalArgumentException("Não é possível adicionar mais salas.");
+			}
 		}
 	}
 
 	public void removerSala(int numero) {
-		int i = encontrar(salas, numero);
-		if (i < 0) {
+		int s = encontrar(salas, numero);
+		if (s < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar a sala " + numero + ".");
 		} else {
+			// Actualizar registo
+			for (int i = 0; i < formandosRegistados; ++i) {
+				if (formandos[i].getSala() == numero) {
+					formandos[i].setSala(0);
+				}
+			}
+			// Actualizar salas
 			salasUtilizadas--;
-			salas[i] = salas[salasUtilizadas];
+			salas[s] = salas[salasUtilizadas];
 			salas[salasUtilizadas] = null;
 		}
 	}
@@ -70,7 +85,7 @@ public class Escola {
 		if (formandosRegistados < formandos.length) {
 			int f = encontrar(formandos, id);
 			if (f < 0) {
-				formandos[formandosRegistados] = new Formando(nome, idade, genero, id);
+				formandos[formandosRegistados] = new Registo(nome, idade, genero, id);
 				formandosRegistados++;
 			} else {
 				throw new IllegalArgumentException("Formando com id " + id + " já existe.");
@@ -81,47 +96,68 @@ public class Escola {
 	}
 
 	public void removerFormando(String id) {
-		int i = encontrar(formandos, id);
-		if (i < 0) {
+		int f = encontrar(formandos, id);
+		if (f < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + id + ".");
 		} else {
-			formandosRegistados--;
-			formandos[i] = formandos[formandosRegistados];
-			formandos[formandosRegistados] = null;
-
-			//TODO alterar método força bruta para actualizar o formando na sala
-			//     como não temos ainda base de dados é dificil verificar consistencia
-			try {
-				for (int s = 0; s < salasUtilizadas; ++s) {
+			// Actualizar salas utilizando o registo
+			int n = formandos[f].getSala();
+			if (n != 0) {
+				int s = encontrar(salas, n);
+				if (s >= 0) {
 					salas[s].removerFormando(id);
 				}
-			} catch (Exception e) {
-				//System.out.println("A actualizar salas.");
 			}
+			// Actualizar lista de formandos
+			formandosRegistados--;
+			formandos[f] = formandos[formandosRegistados];
+			formandos[formandosRegistados] = null;
 		}
 	}
 
 	public void alocarFormando(String id, int numeroDeSala) {
 		int f = encontrar(formandos, id);
-		int s = encontrar(salas, numeroDeSala);
+		int num = encontrar(salas, numeroDeSala);
 		if (f < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + id + ".");
-		} else if (s < 0) {
+		} else if (num < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar a sala " + numeroDeSala + ".");
 		} else {
-			salas[s].adicionarFormando(formandos[f]);
+			// Actualizar registo
+			// nota:
+			// Se a sala estiver cheia, o formando não é alocado e o registo ficaria incorrecto.
+			int inscritos = salas[num].getInscritos();
+			int capacidade = salas[num].getCapacidade();
+			if (inscritos < capacidade) {
+				// Verificar se o formando já estava alocado:
+				int s = formandos[f].getSala();
+				if (s != 0) {
+					// Formando vai ser alocado noutra sala:
+					int i = encontrar(salas, s);
+					salas[i].removerFormando(id);
+				}
+				formandos[f].setSala(numeroDeSala);
+				salas[num].adicionarFormando(formandos[f].getFormando());
+			} else {
+				throw new IllegalArgumentException("Sala cheia.");
+			}
+
 		}
 	}
 
-	public void desalocarFormando(String id, int numeroDeSala) {
+	public void desalocarFormando(String id) {
 		int f = encontrar(formandos, id);
-		int s = encontrar(salas, numeroDeSala);
 		if (f < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + id + ".");
-		} else if (s < 0) {
-			throw new IllegalArgumentException("Não é possível encontrar a sala " + numeroDeSala + ".");
 		} else {
-			salas[s].removerFormando(id);
+			int num = formandos[f].getSala();
+			if (num != 0) {
+				int s = encontrar(salas, num);
+				if (s >= 0) {
+					salas[s].removerFormando(id);
+				}
+			}
+			formandos[f].setSala(0);
 		}
 	}
 
@@ -139,7 +175,7 @@ public class Escola {
 		if (i < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + id + ".");
 		} else {
-			System.out.println(formandos[i].toString());
+			System.out.println(formandos[i].getFormando().toString());
 		}
 	}
 
@@ -151,6 +187,12 @@ public class Escola {
 		} else if (sn < 0) {
 			salas[sa].setNumero(numeroNovo);
 			salas[sa].setTurma(turma);
+			// Actualizar registo
+			for (int i = 0; i < formandosRegistados; ++i) {
+				if (formandos[i].getSala() == numeroAntigo) {
+					formandos[i].setSala(numeroNovo);
+				}
+			}
 		} else {
 			throw new IllegalArgumentException("Sala " + numeroNovo + " já existe.");
 		}
@@ -162,20 +204,19 @@ public class Escola {
 		if (ia < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + idAntigo + ".");
 		} else if (in < 0) {
-			formandos[ia].setId(idNovo);
-			formandos[ia].setNome(nome);
-			formandos[ia].setIdade(idade);
-			formandos[ia].setGenero(genero);
-
-			//TODO alterar método força bruta para actualizar o formando na sala
-			//     como não temos ainda base de dados é dificil verificar consistencia
-			try {
-				for (int s = 0; s < salasUtilizadas; ++s) {
+			// Actualizar salas utilizando o registo
+			int n = formandos[ia].getSala();
+			if (n != 0) {
+				int s = encontrar(salas, n);
+				if (s >= 0) {
 					salas[s].alterarFormando(idAntigo, nome, idade, genero, idNovo);
 				}
-			} catch (Exception e) {
-				//System.out.println("A actualizar salas.");
 			}
+			// Actualizar registo do formando
+			formandos[ia].getFormando().setId(idNovo);
+			formandos[ia].getFormando().setNome(nome);
+			formandos[ia].getFormando().setIdade(idade);
+			formandos[ia].getFormando().setGenero(genero);
 		} else {
 			throw new IllegalArgumentException("Formando com id " + idNovo + " já existe.");
 		}
@@ -183,7 +224,7 @@ public class Escola {
 
 	public Escola(int salas, int formandos, String nome) {
 		this.salas = new Sala[salas];
-		this.formandos = new Formando[formandos];
+		this.formandos = new Registo[formandos];
 		this.salasUtilizadas = 0;
 		this.formandosRegistados = 0;
 		this.nome = nome;
