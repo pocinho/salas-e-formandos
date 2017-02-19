@@ -157,14 +157,15 @@ public class Escola {
 	}
 
 	public void alterarFormando(String idAntigo, String nome, int idade, String genero, String idNovo) {
-		int i = encontrar(formandos, idAntigo);
-		if (i < 0) {
+		int ia = encontrar(formandos, idAntigo);
+		int in = encontrar(formandos, idNovo);
+		if (ia < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + idAntigo + ".");
-		} else {
-			formandos[i].setId(idNovo);
-			formandos[i].setNome(nome);
-			formandos[i].setIdade(idade);
-			formandos[i].setGenero(genero);
+		} else if (in < 0) {
+			formandos[ia].setId(idNovo);
+			formandos[ia].setNome(nome);
+			formandos[ia].setIdade(idade);
+			formandos[ia].setGenero(genero);
 
 			//TODO alterar método força bruta para actualizar o formando na sala
 			//     como não temos ainda base de dados é dificil verificar consistencia
@@ -175,6 +176,8 @@ public class Escola {
 			} catch (Exception e) {
 				//System.out.println("A actualizar salas.");
 			}
+		} else {
+			throw new IllegalArgumentException("Formando com id " + idNovo + " já existe.");
 		}
 	}
 
