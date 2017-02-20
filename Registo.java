@@ -39,4 +39,9 @@ public class Registo {
 		this.formando = new Formando(nome, idade, genero, id);
 		this.sala = 0;
 	}
+
+	@Override
+	public String toString() {
+		return "Registo [formando=" + formando + ", sala=" + sala + "]";
+	}
 }
