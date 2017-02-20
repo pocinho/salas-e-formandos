@@ -152,11 +152,8 @@ public class Entrada {
 	public static void desalocarFormando(Scanner s, Escola escola) {
 		System.out.println("Introduza o numero do documento de identificação do formando:");
 		String id = s.nextLine();
-		System.out.println("Introduza o numero de sala:");
-		int numeroDeSala = s.nextInt();
-		s.nextLine();
 		try {
-			escola.desalocarFormando(id, numeroDeSala);
+			escola.desalocarFormando(id);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
