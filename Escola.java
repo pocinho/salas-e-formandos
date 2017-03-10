@@ -1,9 +1,9 @@
 /**
  * @author Paulo Pocinho
- * @since  09-02-2017
+ * @since 09-02-2017
  */
 
-// Notas:
+// Nota:
 // Todos os formandos não alocados ficam na sala 0 no Registo de formandos.
 // Por isso, neste programa, não é possível criar a sala numero zero.
 
@@ -14,6 +14,10 @@ public class Escola {
 	private Sala[] salas;
 	private int salasUtilizadas;
 	private String nome;
+
+	// Nota:
+	// As funções encontrar retornam um indice (inteiro >= 0) da array
+	// correspondente ou -1 caso não tenha encontrado o que se procura.
 
 	private int encontrar(Registo[] formandos, String id) {
 		int resultado = -1;
@@ -125,10 +129,10 @@ public class Escola {
 			if (n == numeroDeSala) {
 				throw new IllegalArgumentException("Formando com id " + id + " já está alocado na sala " + numeroDeSala + ".");
 			} else {
-				// Se a sala estiver cheia, o formando não é alocado e o registo ficaria incorrecto.
-				int inscritos = salas[num].getInscritos();
-				int capacidade = salas[num].getCapacidade();
-				if (inscritos < capacidade) {
+				// Se a sala estiver cheia, o formando não é alocado
+				// e o registo ficaria incorrecto.
+				Boolean cheia = salas[num].isFull();
+				if (!cheia) {
 					// Verificar se o formando já estava alocado:
 					if (n != 0) {
 						// Formando vai ser alocado noutra sala:
@@ -172,7 +176,7 @@ public class Escola {
 		if (i < 0) {
 			throw new IllegalArgumentException("Não é possível encontrar o formando com id " + id + ".");
 		} else {
-			System.out.println(formandos[i].getFormando() + "\nSala atribuida = sala " + formandos[i].getSala() + ".");
+			System.out.println(formandos[i]);
 		}
 	}
 
@@ -227,9 +231,9 @@ public class Escola {
 
 	@Override
 	public String toString() {
-		return "Escola [nome=" + nome + ", numero máximo de formandos=" + formandos.length + ", formandos registados=" + formandosRegistados
-				+ ", total salas=" + salas.length + ", salas utilizadas=" + salasUtilizadas + ", ]";
+		return "Escola [nome=" + nome + ", numero máximo de formandos=" + formandos.length + ", formandos registados="
+				+ formandosRegistados + ", total salas=" + salas.length + ", salas utilizadas=" + salasUtilizadas
+				+ ", ]";
 	}
-
 
 }

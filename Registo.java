@@ -1,3 +1,7 @@
+/**
+ * @author Paulo Pocinho
+ * @since 09-02-2017
+ */
 
 public class Registo {
 
@@ -42,6 +46,6 @@ public class Registo {
 
 	@Override
 	public String toString() {
-		return "Registo [formando=" + formando + ", sala=" + sala + "]";
+		return "Registo [" + formando + ", sala=" + sala + "]";
 	}
 }
